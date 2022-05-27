@@ -18,6 +18,16 @@ async function run() {
     try {
         await client.connect();
         // console.log('Database Connected!');
+        const partsCollection = client.db('manufacturer_site').collection('parts');
+
+        //creating api
+        //get all parts
+        app.get('/part', async (req, res) => {
+            const query = {};//get all parts
+            const cursor = partsCollection.find(query);
+            const parts = await cursor.toArray();
+            res.send(parts);
+        })
 
     }
     finally {
