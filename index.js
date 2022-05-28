@@ -3,7 +3,7 @@ const cors = require('cors');
 //jwt token
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -53,6 +53,21 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         })
+        //get single part
+        app.get('/part/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const part = await partsCollection.findOne(query);
+            res.send(part);
+        })
+
+        //add new parts or products
+        app.post('/part', async (req, res) => {
+            const newProduct = req.body;
+            const result = await partsCollection.insertOne(newProduct);
+            res.send(result);
+        })
+
         //get all reviews
         app.get('/review', async (req, res) => {
             const query = {};//get all reviews
@@ -109,8 +124,8 @@ async function run() {
 
         //add new review
         app.post('/review', async (req, res) => {
-            const newItem = req.body;
-            const result = await reviewsCollection.insertOne(newItem);
+            const newReview = req.body;
+            const result = await reviewsCollection.insertOne(newReview);
             res.send(result);
         })
     }
