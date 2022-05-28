@@ -21,6 +21,8 @@ async function run() {
         const partsCollection = client.db('manufacturer_site').collection('parts');
         //review collection
         const reviewsCollection = client.db('manufacturer_site').collection('reviews');
+        //user collection
+        const userCollection = client.db('manufacturer_site').collection('users');
 
         //creating api
         //get all parts
@@ -38,6 +40,18 @@ async function run() {
             res.send(reviews);
         })
 
+        //for user authentication
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
     }
     finally {
 
