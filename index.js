@@ -62,20 +62,35 @@ async function run() {
         })
 
         //all users
-        app.get('/user', async (req, res) => {
+        app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
         })
 
-        //role for user .....admin
-        app.put('/user/admin/:email', async (req, res) => {
+        //to check status...if found admin then send true otherwise send false
+        app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const filter = { email: email };
-            const updateDoc = {
-                $set: { role: 'admin' },
-            };
-            const result = await userCollection.updateOne(filter, updateDoc);
-            res.send(result);
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        })
+
+        //role for user .....admin
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const requester = req.decoded.email; //from verifyJWT-----decoded.email
+            const requesterAccount = await userCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                const filter = { email: email };
+                const updateDoc = {
+                    $set: { role: 'admin' },
+                };
+                const result = await userCollection.updateOne(filter, updateDoc);
+                res.send(result);
+            }
+            else {
+                res.status(403).send({ message: 'Forbidden' });
+            }
         })
 
         //for user authentication
