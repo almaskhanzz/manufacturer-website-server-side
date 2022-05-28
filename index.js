@@ -106,6 +106,13 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token });
         })
+
+        //add new review
+        app.post('/review', async (req, res) => {
+            const newItem = req.body;
+            const result = await reviewsCollection.insertOne(newItem);
+            res.send(result);
+        })
     }
     finally {
 
